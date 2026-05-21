@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="no" data-vibe="cyan" data-light="false" data-scan="true" data-ghost="true" data-city="true">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Helgsnart // digital</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@200;400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg: #07070a;
+    --bg-2: #0d0d12;
+    --ink: #f3f4f0;
+    --ink-2: #9aa09a;
+    --ink-3: #43464a;
+    --line: rgba(243,244,240,0.10);
+    --accent: #c4ff3a;
+    --accent-glow: rgba(196,255,58,0.35);
+  }
+  html[data-vibe="cyan"]    { --accent:#3df0ff; --accent-glow:rgba(61,240,255,.35); }
+  html[data-vibe="magenta"] { --accent:#ff3ddc; --accent-glow:rgba(255,61,220,.35); }
+  html[data-vibe="lime"]    { --accent:#c4ff3a; --accent-glow:rgba(196,255,58,.35); }
+  html[data-vibe="amber"]   { --accent:#ffb23a; --accent-glow:rgba(255,178,58,.30); }
+  html[data-vibe="white"]   { --accent:#f3f4f0; --accent-glow:rgba(243,244,240,.20); }
+  html[data-light="true"]   { --bg:#f3f4f0; --bg-2:#e7e8e2; --ink:#0a0a0a; --ink-2:#5a5d57; --ink-3:#b6b9b0; --line:rgba(10,10,10,.10);}
+
+  *{box-sizing:border-box}
+  html, body{margin:0;padding:0;height:100%;}
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background:
+      repeating-linear-gradient(to bottom,
+        rgba(255,255,255,0) 0,
+        rgba(255,255,255,0) 2px,
+        rgba(255,255,255,0.025) 3px),
+      radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.45) 100%);
+    pointer-events:none;
+    z-index:1;
+    mix-blend-mode: overlay;
+  }
+  html[data-scan="false"] body::before{ background: none; }
+  html[data-light="true"] body::before{ mix-blend-mode: multiply; opacity: .6;}
+
+  .page{
+    position:relative;
+    z-index:2;
+    min-height: 100vh;
+    display:grid;
+    grid-template-rows: auto 1fr auto;
+    padding: clamp(18px, 2.5vw, 28px) clamp(18px, 3vw, 36px);
+  }
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .topbar .brand{
+    color: var(--ink);
+    display:inline-flex; align-items:center; gap:10px;
+    font-weight: 500;
+  }
+  .topbar .brand .led{
+    width:8px;height:8px;border-radius:50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow), 0 0 0 1px var(--accent);
+    animation: blink 1.4s steps(2,end) infinite;
+  }
+  @keyframes blink{ 50%{opacity:.18} }
+  .topbar .meta{ display:flex; gap: 18px;}
+  .topbar .meta span:not(:last-child)::after{
+    content:"·"; margin-left:18px; color: var(--ink-3);
+  }
+
+  .stage{
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap: clamp(18px, 4vh, 36px);
+    padding: clamp(20px, 6vh, 60px) 0;
+  }
+
+  .kicker{
+    display:flex; align-items:center; gap: 14px;
+    font-size: 12px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .kicker .accent{ color: var(--accent); }
+  .kicker .bar{
+    display:inline-block; height:1px; width: 60px;
+    background: linear-gradient(to right, transparent, var(--ink-3));
+  }
+  .kicker .bar.r{ background: linear-gradient(to left, transparent, var(--ink-3)); }
+
+  .clock{
+    display:flex; align-items:baseline; justify-content:center;
+    gap: clamp(2px, 0.6vw, 10px);
+    font-weight: 700;
+    font-size: clamp(48px, 10vw, 180px);
+    line-height: 0.86;
+    letter-spacing: -0.05em;
+    max-width: 100%;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum","zero";
+    text-shadow: 0 0 36px var(--accent-glow);
+  }
+  .clock .grp{
+    display:inline-flex;
+    align-items:baseline;
+    color: var(--accent);
+  }
+  .clock .grp .digit{
+    display:inline-block;
+    width: 0.58em;
+    text-align: center;
+    position: relative;
+  }
+  .clock .grp .digit::before{
+    content: "8";
+    position: absolute; inset: 0;
+    color: var(--accent);
+    opacity: 0.06;
+    pointer-events: none;
+  }
+  html[data-ghost="false"] .clock .grp .digit::before{ display:none;}
+  .clock .grp .digit > span{
+    position: relative;
+    display:block;
+    transition: transform 220ms cubic-bezier(.22,.61,.36,1), opacity 220ms ease;
+  }
+  .clock .digit.tick > span{ animation: tick 240ms cubic-bezier(.22,.61,.36,1); }
+  @keyframes tick{
+    0%   { transform: translateY(-0.18em); opacity: 0; filter: blur(2px); }
+    100% { transform: translateY(0);       opacity: 1; filter: blur(0); }
+  }
+  .clock .colon{
+    color: var(--accent);
+    opacity: 1;
+    transform: translateY(-0.06em);
+    animation: colon 1s steps(2, end) infinite;
+    margin: 0 -0.06em;
+  }
+  @keyframes colon{ 50%{opacity:.18} }
+
+  .labels{
+    display:flex; justify-content:center;
+    gap: clamp(28px, 6vw, 80px);
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .labels span{ min-width: 1em; text-align: center;}
+
+  .progress{
+    width: min(720px, 86%);
+    display:flex; flex-direction:column; gap: 10px;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .progress .row{ display:flex; justify-content:space-between; align-items:baseline;}
+  .progress .row .v{ color: var(--ink); font-feature-settings:"tnum";}
+  .progress .bar{
+    height: 6px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line);
+    position:relative; overflow:hidden;
+  }
+  html[data-light="true"] .progress .bar{ background: rgba(0,0,0,0.04); }
+  .progress .bar .fill{
+    position:absolute; inset:0 auto 0 0;
+    width: 0;
+    background:
+      repeating-linear-gradient(to right,
+        var(--accent) 0 6px,
+        transparent 6px 8px);
+    transition: width 600ms cubic-bezier(.22,.61,.36,1);
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+
+  .footer{
+    display:flex; justify-content:space-between; align-items:end;
+    font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .footer .prompt{
+    color: var(--ink);
+  }
+  .footer .prompt .accent{ color: var(--accent); }
+  .footer .prompt .caret{
+    display:inline-block; width: 0.5em; height: 1em;
+    background: var(--accent);
+    transform: translateY(0.18em);
+    margin-left: 0.2em;
+    animation: blink 1s steps(2,end) infinite;
+  }
+
+  .weekend .clock { animation: glowpulse 2.6s ease-in-out infinite; }
+  @keyframes glowpulse{
+    0%,100%{ text-shadow: 0 0 28px var(--accent-glow); }
+    50%   { text-shadow: 0 0 60px var(--accent-glow), 0 0 120px var(--accent-glow);}
+  }
+
+  .cityscape{
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: min(58vh, 520px);
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 32%, #000 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, #000 32%, #000 100%);
+  }
+  .cityscape::before{
+    content:"";
+    position:absolute; left:-10%; right:-10%; bottom: 36%;
+    height: 24%;
+    background: radial-gradient(ellipse at 50% 100%,
+      color-mix(in oklab, var(--accent) 38%, transparent) 0%,
+      color-mix(in oklab, var(--accent) 8%, transparent)  40%,
+      transparent 70%);
+    filter: blur(6px);
+    opacity: .65;
+    pointer-events: none;
+  }
+  .cityscape::after{
+    content:"";
+    position:absolute; inset: 0 0 35% 0;
+    background-image:
+      radial-gradient(1px 1px at 12% 22%, rgba(255,255,255,.7), transparent 60%),
+      radial-gradient(1px 1px at 28% 60%, rgba(255,255,255,.5), transparent 60%),
+      radial-gradient(1px 1px at 47% 18%, rgba(255,255,255,.6), transparent 60%),
+      radial-gradient(1px 1px at 63% 44%, rgba(255,255,255,.5), transparent 60%),
+      radial-gradient(1px 1px at 78% 30%, rgba(255,255,255,.7), transparent 60%),
+      radial-gradient(1px 1px at 88% 64%, rgba(255,255,255,.4), transparent 60%),
+      radial-gradient(1px 1px at 38% 80%, rgba(255,255,255,.4), transparent 60%);
+    opacity: .55;
+    animation: starpulse 5s ease-in-out infinite;
+  }
+  @keyframes starpulse{ 0%,100%{opacity:.5} 50%{opacity:.75} }
+
+  .layer{
+    position:absolute;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    width: 200%;
+    will-change: transform;
+    animation: scroll var(--dur, 120s) linear infinite;
+  }
+  .layer svg{ display:block; flex: 0 0 50%; height: auto; }
+  .layer.far  { --dur: 280s; bottom: 12%;  opacity: .42; filter: blur(0.6px); }
+  .layer.mid  { --dur: 140s; bottom: 6%;   opacity: .78; }
+  .layer.near { --dur: 70s;  bottom: 0;    opacity: 1;   }
+  @keyframes scroll { from { transform: translate3d(0,0,0);} to { transform: translate3d(-50%,0,0);} }
+
+  .layer .bld{ fill: color-mix(in oklab, var(--bg) 84%, #000); }
+  .layer.far .bld{ fill: color-mix(in oklab, var(--bg) 76%, var(--accent) 4%); }
+  .layer.mid .bld{ fill: color-mix(in oklab, #000 70%, var(--bg) 30%); }
+  .layer.near .bld{ fill: #000; }
+  .layer .edge{ fill: color-mix(in oklab, var(--accent) 30%, transparent); }
+  .layer .win{
+    fill: var(--accent);
+    opacity: .85;
+  }
+  .layer .win.warm{ fill: #ffb14a; opacity: .9; }
+  .layer .win.dim { opacity: .14; }
+  .layer .win.blink{
+    animation: winblink var(--bd, 5s) steps(2,end) infinite;
+    animation-delay: var(--bdelay, 0s);
+  }
+  @keyframes winblink{
+    0%, 78% { opacity: .85; }
+    79%, 100%{ opacity: .12; }
+  }
+  .layer.far .win{ opacity: .55; }
+  .layer.near .win{ filter: drop-shadow(0 0 2px var(--accent-glow)); }
+
+  .aircraft{
+    position: absolute;
+    top: 18%;
+    left: -6%;
+    width: 4px; height: 4px; border-radius: 50%;
+    background: #ff5a5a;
+    box-shadow: 0 0 8px rgba(255,90,90,.9), 0 0 18px rgba(255,90,90,.5);
+    animation: fly 38s linear infinite, ablink 1.4s steps(2,end) infinite;
+  }
+  @keyframes fly{
+    0%   { transform: translate(0, 0); }
+    100% { transform: translate(120vw, 30vh); }
+  }
+  @keyframes ablink{ 50% { opacity: .25; } }
+
+  html[data-light="true"] .cityscape{ display: none; }
+  html[data-city="false"] .cityscape{ display: none; }
+
+  html[data-city="true"] .stage{ position: relative; }
+  html[data-city="true"] .stage::before{
+    content:"";
+    position:absolute; inset:-10% -10% -10% -10%;
+    background: radial-gradient(ellipse at 50% 50%,
+      color-mix(in oklab, var(--bg) 70%, transparent) 0%,
+      transparent 65%);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .layer, .aircraft, .cityscape::after, .colon, .topbar .brand .led, .footer .prompt .caret{
+      animation: none !important;
+    }
+  }
+
+  @media (max-width: 640px){
+    .topbar{ flex-direction:column; gap: 10px; text-align:center;}
+    .topbar .meta{ gap: 14px;}
+    .clock{ font-size: clamp(40px, 13vw, 96px); gap: 2px;}
+    .clock .grp .digit{ width: 0.6em;}
+    .labels{ gap: 18px;}
+  }
+
+  .booting .page, .booting .cityscape{ opacity:0;}
+  .page, .cityscape{ transition: opacity 240ms ease;}
+</style>
+</head>
+<body class="booting">
+
+<div class="cityscape" id="cityscape" aria-hidden="true"></div>
+
+<div class="page" id="page">
+  <div class="topbar">
+    <div class="brand">
+      <span class="led"></span>
+      HELGSNART<span style="color:var(--ink-3); margin-left:8px">// v.02</span>
+    </div>
+    <div class="meta">
+      <span id="mode-meta">MODE: AWAIT</span>
+      <span id="sys-clock">SYS --:--:--</span>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="kicker">
+      <span class="bar"></span>
+      <span id="kicker-text">NEDTELLING TIL <span class="accent">FREDAG 16:00</span></span>
+      <span class="bar r"></span>
+    </div>
+
+    <div class="clock" aria-label="countdown">
+      <span class="grp" id="grp-d"><span class="digit"><span>0</span></span><span class="digit"><span>0</span></span></span>
+      <span class="colon">:</span>
+      <span class="grp" id="grp-h"><span class="digit"><span>0</span></span><span class="digit"><span>0</span></span></span>
+      <span class="colon">:</span>
+      <span class="grp" id="grp-m"><span class="digit"><span>0</span></span><span class="digit"><span>0</span></span></span>
+      <span class="colon">:</span>
+      <span class="grp" id="grp-s"><span class="digit"><span>0</span></span><span class="digit"><span>0</span></span></span>
+    </div>
+
+    <div class="labels" aria-hidden="true">
+      <span>DAG</span>
+      <span>TIME</span>
+      <span>MIN</span>
+      <span>SEK</span>
+    </div>
+
+    <div class="progress">
+      <div class="row">
+        <span>UKA SÅ LANGT</span>
+        <span class="v" id="pct">0.00%</span>
+      </div>
+      <div class="bar">
+        <div class="fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <div class="row" style="color:var(--ink-3)">
+        <span>MAN 00:00</span>
+        <span>FREDAG 16:00</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="prompt">
+      <span class="accent">&gt;</span> <span id="prompt-text">AWAIT_WEEKEND.SH</span><span class="caret"></span>
+    </div>
+    <div id="utc-stamp">---- -- -- --:--:-- UTC</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  // ── config ─────────────────────────────────────────────────
+  // Weekend starts Friday 16:00 (Norwegian convention).
+  // Change WEEKEND_MODE to 'fri17' or 'sat00' for other thresholds.
+  var WEEKEND_MODE = 'fri16';
+  var WEEKEND_LABELS = {
+    fri16: 'FREDAG 16:00',
+    fri17: 'FREDAG 17:00',
+    sat00: 'LØRDAG 00:00'
+  };
+
+  // ── procedural cityscape ───────────────────────────────────
+  function makeRng(seed){
+    var s = seed >>> 0;
+    return function(){
+      s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+      return s / 4294967296;
+    };
+  }
+
+  function buildLayer(seed, panelW, opts){
+    var rnd = makeRng(seed);
+    var hMin=opts.hMin, hMax=opts.hMax, wMin=opts.wMin, wMax=opts.wMax;
+    var gap=opts.gap, baseY=opts.baseY, winSize=opts.winSize, winGap=opts.winGap;
+    var winOnProb=opts.winOnProb, antennaProb=opts.antennaProb;
+    var buildings = [];
+    var x = 0;
+    while (x < panelW){
+      var w = Math.round(wMin + rnd() * (wMax - wMin));
+      var h = Math.round(hMin + rnd() * (hMax - hMin));
+      var top = baseY - h;
+      var cols = Math.max(1, Math.floor((w - 8) / (winSize + winGap)));
+      var rows = Math.max(1, Math.floor((h - 12) / (winSize + winGap)));
+      var wins = [];
+      var colShift = 4 + ((w - 8) - cols * (winSize + winGap) + winGap) / 2;
+      for (var r = 0; r < rows; r++){
+        for (var c = 0; c < cols; c++){
+          if (rnd() < 0.10) continue;
+          var on = rnd() < winOnProb;
+          var warm = rnd() < 0.18;
+          var blink = on && rnd() < 0.22;
+          wins.push({
+            x: x + colShift + c * (winSize + winGap),
+            y: top + 6 + r * (winSize + winGap),
+            on: on, warm: warm, blink: blink,
+            bd: 3 + rnd() * 7,
+            bdelay: rnd() * 6
+          });
+        }
+      }
+      var antenna = null;
+      if (rnd() < antennaProb){
+        antenna = {
+          x: x + w/2 - 0.5,
+          y: top - (4 + rnd() * 18),
+          h: 4 + rnd() * 18,
+          light: rnd() < 0.5
+        };
+      }
+      var setback = null;
+      if (rnd() < 0.25 && w > 40){
+        var sw = w * (0.4 + rnd()*0.35);
+        var sh = 8 + rnd() * 22;
+        setback = { x: x + (w - sw)/2 + (rnd()-0.5)*8, y: top - sh, w: sw, h: sh };
+      }
+      buildings.push({ x:x, w:w, h:h, top:top, wins:wins, antenna:antenna, setback:setback });
+      x += w + Math.round(gap * (0.4 + rnd()*1.2));
+    }
+    return { buildings: buildings, width: x };
+  }
+
+  function layerToSvg(layer, viewH, key){
+    var winSize = key === 'far' ? 2 : key === 'mid' ? 3 : 4;
+    var w = layer.width;
+    var out = '<svg viewBox="0 0 ' + w + ' ' + viewH + '" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">';
+    var bs = layer.buildings;
+    for (var i = 0; i < bs.length; i++){
+      var b = bs[i];
+      out += '<g>';
+      out += '<rect class="bld" x="' + b.x + '" y="' + b.top + '" width="' + b.w + '" height="' + (b.h + 10) + '"/>';
+      if (b.setback){
+        out += '<rect class="bld" x="' + b.setback.x + '" y="' + b.setback.y + '" width="' + b.setback.w + '" height="' + (b.setback.h + 2) + '"/>';
+      }
+      out += '<rect class="edge" x="' + b.x + '" y="' + b.top + '" width="' + b.w + '" height="0.6"/>';
+      if (b.antenna){
+        out += '<rect class="bld" x="' + b.antenna.x + '" y="' + b.antenna.y + '" width="1" height="' + b.antenna.h + '"/>';
+        if (b.antenna.light){
+          var delay = (Math.random()*2).toFixed(2);
+          out += '<circle class="win blink warm" cx="' + (b.antenna.x + 0.5) + '" cy="' + b.antenna.y + '" r="1.2" style="animation-delay:' + delay + 's"/>';
+        }
+      }
+      for (var j = 0; j < b.wins.length; j++){
+        var wn = b.wins[j];
+        var cls = 'win' + (wn.on ? '' : ' dim') + (wn.warm ? ' warm' : '') + (wn.blink ? ' blink' : '');
+        var style = wn.blink ? ' style="--bd:' + wn.bd.toFixed(2) + 's;--bdelay:' + wn.bdelay.toFixed(2) + 's"' : '';
+        out += '<rect class="' + cls + '" x="' + wn.x + '" y="' + wn.y + '" width="' + winSize + '" height="' + winSize + '"' + style + '/>';
+      }
+      out += '</g>';
+    }
+    out += '</svg>';
+    return out;
+  }
+
+  function buildCityscape(){
+    var PANEL_W = 1600;
+    var far  = buildLayer(101, PANEL_W, { hMin:50,  hMax:120, wMin:30, wMax:64,  gap:4,  baseY:180, winSize:2, winGap:3, winOnProb:0.38, antennaProb:0.10 });
+    var mid  = buildLayer(202, PANEL_W, { hMin:90,  hMax:200, wMin:48, wMax:110, gap:8,  baseY:240, winSize:3, winGap:4, winOnProb:0.42, antennaProb:0.22 });
+    var near = buildLayer(303, PANEL_W, { hMin:140, hMax:300, wMin:74, wMax:160, gap:12, baseY:320, winSize:4, winGap:5, winOnProb:0.40, antennaProb:0.35 });
+    var farSvg  = layerToSvg(far,  200, 'far');
+    var midSvg  = layerToSvg(mid,  260, 'mid');
+    var nearSvg = layerToSvg(near, 340, 'near');
+    var html = '';
+    html += '<div class="layer far">'  + farSvg  + farSvg  + '</div>';
+    html += '<div class="layer mid">'  + midSvg  + midSvg  + '</div>';
+    html += '<div class="layer near">' + nearSvg + nearSvg + '</div>';
+    html += '<div class="aircraft"></div>';
+    return html;
+  }
+
+  // ── weekend logic ──────────────────────────────────────────
+  function nextWeekendStart(now, mode){
+    var day = now.getDay();
+    var target = new Date(now);
+    target.setMilliseconds(0); target.setSeconds(0);
+    if (mode === 'sat00'){
+      var daysUntilSat = (6 - day + 7) % 7;
+      target.setDate(now.getDate() + daysUntilSat);
+      target.setHours(0,0,0,0);
+      if (target <= now) target.setDate(target.getDate() + 7);
+      return target;
+    }
+    var hour = mode === 'fri17' ? 17 : 16;
+    var daysUntilFri = (5 - day + 7) % 7;
+    target.setDate(now.getDate() + daysUntilFri);
+    target.setHours(hour, 0, 0, 0);
+    if (target <= now) target.setDate(target.getDate() + 7);
+    return target;
+  }
+  function weekendEnd(now){
+    var day = now.getDay();
+    var e = new Date(now);
+    var daysUntilSun = (7 - day) % 7;
+    e.setDate(now.getDate() + daysUntilSun);
+    e.setHours(23,59,59,999);
+    return e;
+  }
+  function isWeekend(now, mode){
+    var day = now.getDay();
+    if (day === 0 || day === 6) return true;
+    if (day === 5){
+      var h = now.getHours();
+      if (mode === 'sat00') return false;
+      if (mode === 'fri17') return h >= 17;
+      return h >= 16;
+    }
+    return false;
+  }
+  function diffParts(ms){
+    ms = Math.max(0, ms);
+    var s = Math.floor(ms / 1000);
+    return {
+      d: Math.floor(s / 86400),
+      h: Math.floor((s % 86400) / 3600),
+      m: Math.floor((s % 3600) / 60),
+      s: s % 60
+    };
+  }
+  function pad(n, w){ return String(n).padStart(w, '0'); }
+
+  // ── digit tick rendering ───────────────────────────────────
+  function updateDigitGroup(grp, value, width){
+    var str = pad(value, width);
+    var digits = grp.children;
+    // grow group if width increased (e.g. days > 99)
+    while (digits.length < width){
+      var d = document.createElement('span');
+      d.className = 'digit';
+      var inner = document.createElement('span');
+      inner.textContent = '0';
+      d.appendChild(inner);
+      grp.appendChild(d);
+    }
+    while (digits.length > width){
+      grp.removeChild(grp.lastChild);
+    }
+    for (var i = 0; i < width; i++){
+      var inner2 = digits[i].firstChild;
+      if (inner2.textContent !== str[i]){
+        inner2.textContent = str[i];
+        digits[i].classList.remove('tick');
+        // force reflow so the animation restarts
+        void digits[i].offsetWidth;
+        digits[i].classList.add('tick');
+      }
+    }
+  }
+
+  // ── main tick ──────────────────────────────────────────────
+  var els = {
+    page: document.getElementById('page'),
+    grpD: document.getElementById('grp-d'),
+    grpH: document.getElementById('grp-h'),
+    grpM: document.getElementById('grp-m'),
+    grpS: document.getElementById('grp-s'),
+    modeMeta: document.getElementById('mode-meta'),
+    sysClock: document.getElementById('sys-clock'),
+    utcStamp: document.getElementById('utc-stamp'),
+    kicker: document.getElementById('kicker-text'),
+    promptText: document.getElementById('prompt-text'),
+    pct: document.getElementById('pct'),
+    progressFill: document.getElementById('progress-fill')
+  };
+
+  function tick(){
+    var now = new Date();
+    var onWeekend = isWeekend(now, WEEKEND_MODE);
+    var target = onWeekend ? weekendEnd(now) : nextWeekendStart(now, WEEKEND_MODE);
+    var parts = diffParts(target - now);
+
+    var dWidth = parts.d > 99 ? 3 : 2;
+    updateDigitGroup(els.grpD, parts.d, dWidth);
+    updateDigitGroup(els.grpH, parts.h, 2);
+    updateDigitGroup(els.grpM, parts.m, 2);
+    updateDigitGroup(els.grpS, parts.s, 2);
+
+    var sysClock = now.toLocaleTimeString('nb-NO', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    els.sysClock.textContent = 'SYS ' + sysClock;
+    els.utcStamp.textContent = now.toISOString().replace('T',' ').slice(0,19) + ' UTC';
+
+    if (onWeekend !== els.page.classList.contains('weekend')){
+      els.page.classList.toggle('weekend', onWeekend);
+      els.modeMeta.textContent = onWeekend ? 'MODE: WEEKEND' : 'MODE: AWAIT';
+      els.promptText.textContent = onWeekend ? 'ENJOY.SH' : 'AWAIT_WEEKEND.SH';
+      var label = onWeekend ? '// PÅGÅR' : WEEKEND_LABELS[WEEKEND_MODE];
+      var lead  = onWeekend ? 'WEEKEND' : 'NEDTELLING TIL';
+      els.kicker.innerHTML = lead + ' <span class="accent">' + label + '</span>';
+    }
+
+    // week progress: Monday 00:00 → next weekend start
+    var weekStart = new Date(now);
+    var day = weekStart.getDay();
+    var back = day === 0 ? 6 : day - 1;
+    weekStart.setDate(weekStart.getDate() - back);
+    weekStart.setHours(0,0,0,0);
+    var nextWE = nextWeekendStart(weekStart, WEEKEND_MODE);
+    var pct = Math.min(100, Math.max(0, ((now - weekStart) / (nextWE - weekStart)) * 100));
+    els.pct.textContent = pct.toFixed(2) + '%';
+    els.progressFill.style.width = pct + '%';
+  }
+
+  // ── boot ───────────────────────────────────────────────────
+  document.getElementById('cityscape').innerHTML = buildCityscape();
+  tick();
+  document.body.classList.remove('booting');
+  setInterval(tick, 1000);
+})();
+</script>
+</body>
+</html>
